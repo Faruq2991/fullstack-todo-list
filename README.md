@@ -27,6 +27,96 @@ The project is divided into two main parts:
 - Responsive user interface adaptable to different screen sizes.
 - Real-time updates without page reloads.
 
+## Local Development Setup:
+``` 
+   # Clone the repository (if you haven't already)
+   git clone <repository-url>
+   cd fullstack-todo-list
+   
+   # Install dependencies for both frontend and backend
+   cd Frontend
+   npm install
+   
+   cd ../Backend
+   npm install
+```
+## Build Docker Images:
+```
+   # Build frontend image
+   cd Frontend
+   docker build -t todo-frontend:latest .
+   
+   # Build backend image
+   cd ../Backend
+   docker build -t todo-backend:latest .
+```
+## Set up Google Cloud Project:
+```
+   # Login to Google Cloud
+   gcloud auth login
+   
+   # Set your project ID
+   gcloud config set project YOUR_PROJECT_ID
+   
+   # Enable required APIs
+   gcloud services enable container.googleapis.com
+   gcloud services enable compute.googleapis.com
+```
+## Infrastructure Setup with Terraform:
+```
+   cd gke-terraform/terraform
+   
+   # Initialize Terraform
+   terraform init
+   
+   # Create a terraform.tf file with your configuration
+   # Required variables:
+   # - project_id
+   # - region
+   # - zone
+   
+   # Plan the infrastructure
+   terraform plan
+   
+   # Apply the infrastructure
+   terraform apply
+```
+## Configure kubectl:
+```
+    # Get credentials for your GKE cluster
+    gcloud container clusters get-credentials kubernetes_cluster_name --region region
+```
+## Deploy to Kubernetes:
+```
+   # Create namespace
+   kubectl apply -f k8s/namespace.yaml
+   
+   # Deploy MongoDB with persistent volume
+   kubectl apply -f k8s/mongo-pvc.yaml
+   kubectl apply -f k8s/mongo-deployment.yaml
+   
+   # Deploy Backend
+   kubectl apply -f k8s/backend-deployment.yaml
+   
+   # Deploy Frontend
+   kubectl apply -f k8s/frontend-deployment.yaml
+
+   # or simply 
+   kubectl apply -f k8s/
+```
+## Verify Deployment:
+```
+   # Check if all pods are running
+   kubectl get pods -n todo-app
+   
+   # Get the external IP for the frontend service
+   kubectl get svc -n todo-app
+```
+## Access the Application:
+```
+Use the external IP address from the frontend service to access the application
+The application should be accessible at (http://<EXTERNAL_IP>:80)
+```
 ## Contributing
 
 Contributions are welcome! See the specific README files in the `frontend/` and `backend/` directories for more details on contributing.

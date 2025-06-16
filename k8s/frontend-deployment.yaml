@@ -4,7 +4,7 @@ metadata:
   name: todo-frontend
   namespace: todo-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: todo-frontend
@@ -15,34 +15,38 @@ spec:
     spec:
       containers:
       - name: todo-frontend
+<<<<<<< HEAD
         image: faruq96/todo-frontend:569b15b
+=======
+        image: faruq96/todo-frontend:latest 
+>>>>>>> e0239c1 (feat: updated README.md with instructions on how to setup the infra.)
         ports:
         - containerPort: 80
         env:
-        - name: REACT_APP_API_URL  # Adjust based on your frontend framework
+        - name: REACT_APP_API_URL 
           value: "http://backend-service:5000"
         resources:
           requests:
-            memory: "64Mi"
-            cpu: "50m"
+            memory: "16Mi"
+            cpu: "10m"
           limits:
-            memory: "128Mi"
-            cpu: "100m"
+            memory: "32Mi"
+            cpu: "25m"
         livenessProbe:
           httpGet:
             path: /
             port: 80
-          initialDelaySeconds: 10
+          initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /
             port: 80
-          initialDelaySeconds: 5
+          initialDelaySeconds: 10
           periodSeconds: 5
 
 ---
-# frontend-service.yaml
+# frontend-service
 apiVersion: v1
 kind: Service
 metadata:

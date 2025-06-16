@@ -4,7 +4,7 @@ metadata:
   name: todo-backend
   namespace: todo-app
 spec:
-  replicas: 2
+  replicas: 1 
   selector:
     matchLabels:
       app: todo-backend
@@ -15,7 +15,11 @@ spec:
     spec:
       containers:
       - name: todo-backend
+<<<<<<< HEAD
         image: faruq96/todo-backend:569b15b
+=======
+        image: faruq96/todo-backend:latest
+>>>>>>> e0239c1 (feat: updated README.md with instructions on how to setup the infra.)
         ports:
         - containerPort: 5000
         env:
@@ -27,26 +31,24 @@ spec:
           value: "5000"
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "100m"
+            memory: "32Mi"
+            cpu: "25m"
           limits:
-            memory: "256Mi"
-            cpu: "200m"
+            memory: "64Mi"
+            cpu: "50m"
         livenessProbe:
-          httpGet:
-            path: /health  # Adjust if your health endpoint is different
+          tcpSocket:
+            port: 5000
+          initialDelaySeconds: 60
+          periodSeconds: 15
+        readinessProbe:
+          tcpSocket:
             port: 5000
           initialDelaySeconds: 30
           periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health  # Adjust if your health endpoint is different
-            port: 5000
-          initialDelaySeconds: 10
-          periodSeconds: 5
 
 ---
-# backend-service.yaml
+# backend-service
 apiVersion: v1
 kind: Service
 metadata:
