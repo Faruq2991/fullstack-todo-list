@@ -19,8 +19,8 @@ Before you begin, ensure you have the following installed:
 - npm (v6 or higher)
 - Docker
 - Docker Compose
-- MongoDB (for local development)
 - Git
+- curl (for testing endpoints)
 
 ## Local Development
 
@@ -156,7 +156,7 @@ Create `.env` files in both Frontend and Backend directories:
 NODE_ENV=development
 PORT=5000
 MONGO_URI=mongodb://mongo:27017/todos
-JWT_SECRET=your_jwt_secret
+JWT_SECRET=your_secure_jwt_secret
 ```
 
 #### Frontend (.env)
