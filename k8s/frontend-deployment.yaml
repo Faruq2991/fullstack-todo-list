@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: todo-frontend
-        image: faruq96/todo-frontend:latest  # Will be updated by CI/CD
+        image: faruq96/todo-frontend:569b15b
         ports:
         - containerPort: 80
         env:
