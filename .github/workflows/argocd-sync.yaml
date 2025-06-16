@@ -1,0 +1,44 @@
+name: ArgoCD Sync
+
+on:
+  push:
+    branches:
+      - main  # or your default branch
+    paths:
+      - 'k8s/**'
+      - '.github/workflows/argocd-sync.yaml'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure GCP credentials
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v1
+        with:
+          cluster_name: ${{ secrets.GKE_CLUSTER_NAME }}
+          location: ${{ secrets.GKE_LOCATION }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Trigger ArgoCD sync
+        run: |
+          # Wait for ArgoCD to be ready
+          kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd
+          
+          # Trigger sync for the todo-app
+          kubectl patch applications todo-app -n argocd --type merge -p '{"spec":{"syncPolicy":{"automated":{"prune":true,"selfHeal":true}}}}'
+          
+          # Wait for sync to complete
+          kubectl wait --for=condition=healthy --timeout=300s applications todo-app -n argocd 

@@ -37,6 +37,9 @@ resource "google_container_cluster" "simple_cluster" {
     services_ipv4_cidr_block = "10.1.0.0/16"
   }
 
+  # Disable deletion protection
+  deletion_protection = false
+
   initial_node_count = 2
 
   node_config {
