@@ -1,0 +1,44 @@
+global:
+  image:
+    tag: v2.9.3  # Using a stable version
+
+server:
+  extraArgs:
+    - --insecure  # For development, remove in production
+  config:
+    url: https://argocd.example.com  # Replace with your domain
+    admin.enabled: "true"
+  service:
+    type: LoadBalancer
+  rbacConfig:
+    policy.default: role:readonly
+    policy.csv: |
+      p, role:org-admin, applications, *, */*, allow
+      p, role:org-admin, clusters, get, *, allow
+      p, role:org-admin, projects, get, *, allow
+      p, role:org-admin, logs, get, */*, allow
+      p, role:org-admin, exec, create, */*, allow
+
+configs:
+  secret:
+    argocdServerAdminPassword: "$2y$10$TdhPKgyqHFiLlX7hEJG5murEB1WFf5QiNQpuwKTH3kGexUKDYf9de"  # This is a placeholder, will be replaced
+    argocdServerAdminPasswordMtime: "2024-01-01T00:00:00Z"
+
+repoServer:
+  serviceAccount:
+    create: true
+    name: argocd-repo-server
+
+applicationSet:
+  enabled: true
+
+notifications:
+  enabled: true
+
+dex:
+  enabled: false  # Disable Dex for now, can be enabled later for SSO
+
+redis:
+  enabled: true
+  image:
+    tag: 7.0.11-alpine 

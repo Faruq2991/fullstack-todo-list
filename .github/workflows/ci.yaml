@@ -12,8 +12,7 @@ jobs:
 
       - name: Set SHORT_SHA
         run: |
-         echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
-        shell: bash
+          echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -29,11 +28,26 @@ jobs:
         with:
           context: ./Backend
           push: true
-          tags: faruq96/todo-backend:${{ env.SHORT_SHA }}
+          tags: faruq96/todo-backend:${{ env.SHORT_SHA }},faruq96/todo-backend:latest
 
       - name: Build and push frontend
         uses: docker/build-push-action@v5
         with:
           context: ./Frontend
           push: true
-          tags: faruq96/todo-frontend:${{ env.SHORT_SHA }}
+          tags: faruq96/todo-frontend:${{ env.SHORT_SHA }},faruq96/todo-frontend:latest
+
+      - name: Update Kubernetes manifests
+        run: |
+          # Update backend image tag
+          sed -i "s|image: faruq96/todo-backend:.*|image: faruq96/todo-backend:${{ env.SHORT_SHA }}|" k8s/backend-deployment.yaml
+          # Update frontend image tag
+          sed -i "s|image: faruq96/todo-frontend:.*|image: faruq96/todo-frontend:${{ env.SHORT_SHA }}|" k8s/frontend-deployment.yaml
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'github-actions@github.com'
+          git add k8s/
+          git commit -m "Update image tags to ${{ env.SHORT_SHA }}" || echo "No changes to commit"
+          git push
