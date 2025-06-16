@@ -33,7 +33,7 @@ cd Backend
 npm install
 
 # Create .env file
-cp .env.example .env
+touch .env
 
 # Start development server
 npm run dev
@@ -48,7 +48,7 @@ cd Frontend
 npm install
 
 # Create .env file
-cp .env.example .env
+touch .env
 
 # Start development server
 npm run dev
@@ -108,7 +108,7 @@ docker run -d \
 
 1. **Build all services:**
 ```bash
-docker-compose build
+docker-compose up --build
 ```
 
 2. **Start all services:**
@@ -153,15 +153,25 @@ Create `.env` files in both Frontend and Backend directories:
 
 #### Backend (.env)
 ```env
-NODE_ENV=development
-PORT=5000
 MONGO_URI=mongodb://mongo:27017/todos
-JWT_SECRET=your_secure_jwt_secret
 ```
 
 #### Frontend (.env)
 ```env
+# ===== .env (Development) =====
 REACT_APP_API_URL=http://localhost:5000
+REACT_APP_DOCKER=false
+
+# ===== .env.production (Production) =====
+REACT_APP_API_URL=https://fullstack-todolist-upnv.onrender.com
+REACT_APP_DOCKER=false
+
+# ===== .env.docker (Docker Environment) =====
+REACT_APP_API_URL=http://todo-backend:5000
+REACT_APP_DOCKER=true
+
+
+VITE_API_URL=http://localhost:5000
 ```
 
 ### Security Best Practices
