@@ -1,130 +1,266 @@
-<p align="center">
-    <img src="https://user-images.githubusercontent.com/62269745/174906065-7bb63e14-879a-4740-849c-0821697aeec2.png#gh-light-mode-only" width="40%">
-    <img src="https://user-images.githubusercontent.com/62269745/174906068-aad23112-20fe-4ec8-877f-3ee1d9ec0a69.png#gh-dark-mode-only" width="40%">
-</p>
-
 # Full-Stack Todo List Application
 
-This repository hosts a full-stack Todo List application designed to allow users to create, manage, and organize their tasks efficiently. The application features a React-based frontend and a Node.js backend, utilizing MongoDB for data persistence.
+A modern, full-stack Todo List application built with React, Node.js, and MongoDB, featuring a clean UI and robust backend.
 
-## Technologies Used
+## Table of Contents
+- [Prerequisites](#prerequisites)
+- [Local Development](#local-development)
+- [Docker Setup](#docker-setup)
+- [Docker Compose](#docker-compose)
+- [Network Configuration](#network-configuration)
+- [Security Configuration](#security-configuration)
+- [Deployment](#deployment)
+- [Troubleshooting](#troubleshooting)
 
-- **Frontend**: React, Material-UI
-- **Backend**: Node.js, Express
-- **Database**: MongoDB
-- **Other Tools**: Vite, React Toastify, Lucide Icons
+## Prerequisites
 
-## Project Structure
+Before you begin, ensure you have the following installed:
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+- Docker
+- Docker Compose
+- MongoDB (for local development)
+- Git
 
-The project is divided into two main parts:
-- **Frontend**: Located in the `frontend/` directory with its own [README](frontend/README.md).
-- **Backend**: Located in the `backend/` directory with its own [README](backend/README.md).
+## Local Development
 
-## Features
+### Backend Setup
+```bash
+# Navigate to backend directory
+cd Backend
 
-- Create, view, update, and delete todo items.
-- Organize tasks with tags/categories.
-- Responsive user interface adaptable to different screen sizes.
-- Real-time updates without page reloads.
+# Install dependencies
+npm install
 
-## Local Development Setup:
-``` 
-   # Clone the repository (if you haven't already)
-   git clone <repository-url>
-   cd fullstack-todo-list
-   
-   # Install dependencies for both frontend and backend
-   cd Frontend
-   npm install
-   
-   cd ../Backend
-   npm install
-```
-## Build Docker Images:
-```
-   # Build frontend image
-   cd Frontend
-   docker build -t todo-frontend:latest .
-   
-   # Build backend image
-   cd ../Backend
-   docker build -t todo-backend:latest .
-```
-## Set up Google Cloud Project:
-```
-   # Login to Google Cloud
-   gcloud auth login
-   
-   # Set your project ID
-   gcloud config set project YOUR_PROJECT_ID
-   
-   # Enable required APIs
-   gcloud services enable container.googleapis.com
-   gcloud services enable compute.googleapis.com
-```
-## Infrastructure Setup with Terraform:
-```
-   cd gke-terraform/terraform
-   
-   # Initialize Terraform
-   terraform init
-   
-   # Create a terraform.tf file with your configuration
-   # Required variables:
-   # - project_id
-   # - region
-   # - zone
-   
-   # Plan the infrastructure
-   terraform plan
-   
-   # Apply the infrastructure
-   terraform apply
-```
-## Configure kubectl:
-```
-    # Get credentials for your GKE cluster
-    gcloud container clusters get-credentials kubernetes_cluster_name --region region
-```
-## Deploy to Kubernetes:
-```
-   # Create namespace
-   kubectl apply -f k8s/namespace.yaml
-   
-   # Deploy MongoDB with persistent volume
-   kubectl apply -f k8s/mongo-pvc.yaml
-   kubectl apply -f k8s/mongo-deployment.yaml
-   
-   # Deploy Backend
-   kubectl apply -f k8s/backend-deployment.yaml
-   
-   # Deploy Frontend
-   kubectl apply -f k8s/frontend-deployment.yaml
+# Create .env file
+cp .env.example .env
 
-   # or simply 
-   kubectl apply -f k8s/
+# Start development server
+npm run dev
 ```
-## Verify Deployment:
+
+### Frontend Setup
+```bash
+# Navigate to frontend directory
+cd Frontend
+
+# Install dependencies
+npm install
+
+# Create .env file
+cp .env.example .env
+
+# Start development server
+npm run dev
 ```
-   # Check if all pods are running
-   kubectl get pods -n todo-app
-   
-   # Get the external IP for the frontend service
-   kubectl get svc -n todo-app
+
+## Docker Setup
+
+### Building Individual Images
+
+#### Backend Image
+```bash
+# Navigate to backend directory
+cd Backend
+
+# Build the image
+docker build -t todo-backend:latest .
+
+# Run the container
+docker run -d \
+  --name todo-backend \
+  -p 5000:5000 \
+  -e MONGO_URI=mongodb://mongo:27017/todos \
+  -e NODE_ENV=production \
+  -e PORT=5000 \
+  todo-backend:latest
 ```
-## Access the Application:
+
+#### Frontend Image
+```bash
+# Navigate to frontend directory
+cd Frontend
+
+# Build the image
+docker build -t todo-frontend:latest .
+
+# Run the container
+docker run -d \
+  --name todo-frontend \
+  -p 80:80 \
+  -e REACT_APP_API_URL=http://localhost:5000 \
+  todo-frontend:latest
 ```
-Use the external IP address from the frontend service to access the application
-The application should be accessible at (http://<EXTERNAL_IP>:80)
+
+#### MongoDB Image
+```bash
+# Pull and run MongoDB
+docker run -d \
+  --name mongo \
+  -p 27017:27017 \
+  -v mongo-data:/data/db \
+  mongo:latest
 ```
+
+## Docker Compose
+
+### Building and Running with Docker Compose
+
+1. **Build all services:**
+```bash
+docker-compose build
+```
+
+2. **Start all services:**
+```bash
+docker-compose up -d
+```
+
+3. **View logs:**
+```bash
+docker-compose logs -f
+```
+
+4. **Stop all services:**
+```bash
+docker-compose down
+```
+
+### Docker Compose Configuration
+
+The `docker-compose.yaml` file includes:
+- Service definitions for frontend, backend, and MongoDB
+- Volume mapping for MongoDB persistence
+- Network configuration
+- Environment variables
+- Health checks
+
+## Network Configuration
+
+### Port Mappings
+- Frontend: 80:80
+- Backend: 5000:5000
+- MongoDB: 27017:27017
+
+### Internal Network
+- All services are connected through a custom bridge network
+- Services can communicate using service names as hostnames
+
+## Security Configuration
+
+### Environment Variables
+Create `.env` files in both Frontend and Backend directories:
+
+#### Backend (.env)
+```env
+NODE_ENV=development
+PORT=5000
+MONGO_URI=mongodb://mongo:27017/todos
+JWT_SECRET=your_jwt_secret
+```
+
+#### Frontend (.env)
+```env
+REACT_APP_API_URL=http://localhost:5000
+```
+
+### Security Best Practices
+1. **Docker Security:**
+   - Use non-root users in containers
+   - Implement resource limits
+   - Regular security updates
+
+2. **Application Security:**
+   - Input validation
+   - CORS configuration
+   - Rate limiting
+   - JWT authentication
+
+3. **MongoDB Security:**
+   - Authentication enabled
+   - Network access restrictions
+   - Regular backups
+
+## Deployment
+
+### Kubernetes Deployment
+1. **Apply Kubernetes manifests:**
+```bash
+kubectl apply -f k8s/
+```
+
+2. **Verify deployment:**
+```bash
+kubectl get pods -n todo-app
+```
+
+3. **Access the application:**
+```bash
+kubectl get svc -n todo-app
+```
+
+### GKE Deployment
+1. **Set up GKE cluster:**
+```bash
+cd gke-terraform/terraform
+terraform init
+terraform apply
+```
+
+2. **Install ArgoCD:**
+```bash
+cd gke-terraform/argocd
+./install.sh
+```
+
+3. **Deploy application:**
+```bash
+kubectl apply -f k8s/
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **MongoDB Connection Issues:**
+   - Check MongoDB service is running
+   - Verify connection string
+   - Check network connectivity
+
+2. **Container Startup Issues:**
+   - Check container logs
+   - Verify environment variables
+   - Check resource limits
+
+3. **Kubernetes Deployment Issues:**
+   - Check pod status
+   - View pod logs
+   - Check resource availability
+
+### Debug Commands
+
+```bash
+# Check container logs
+docker logs <container_name>
+
+# Check pod status
+kubectl get pods -n todo-app
+
+# View pod logs
+kubectl logs <pod-name> -n todo-app
+
+# Check service status
+kubectl get svc -n todo-app
+```
+
 ## Contributing
 
-Contributions are welcome! See the specific README files in the `frontend/` and `backend/` directories for more details on contributing.
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-## Live Demo
+## License
 
-<h4 align="left">Live Preview is available at https://fullstack-todolist-1.onrender.com/</h4>
-
-## Snapshots
-
-<img src="./Frontend/src/assets/home-snapshot.png" alt="home page"/>
+This project is licensed under the MIT License - see the LICENSE file for details.
